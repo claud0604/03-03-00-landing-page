@@ -1,0 +1,2239 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APL — 이미지 연대기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&family=DM+Mono:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1a1a1a;
+    --surface: #2a2a2a;
+    --surface2: #222222;
+    --border: #404040;
+    --text: #e0e0e0;
+    --text-muted: #aaaaaa;
+    --text-dim: #777777;
+    --accent: #c4a484;
+    --accent2: #d4b898;
+    --coral: #d4836a;
+    --rose: #c97b8f;
+    --sage: #7a9e8a;
+    --warm: rgba(196,164,132,0.12);
+    --mono: 'DM Mono', monospace;
+    --serif: 'Noto Serif KR', serif;
+    --sans: 'Noto Sans KR', sans-serif;
+    --header-bg: rgba(26,26,26,0.88);
+    --shadow: 0 2px 20px rgba(0,0,0,0.25);
+    --grain-opacity: 0.5;
+  }
+
+  /* ─── LIGHT MODE TOKENS ─── */
+  [data-theme="light"] {
+    --bg: #f2f1ef;
+    --surface: #e9e8e5;
+    --surface2: #dddbd7;
+    --border: rgba(0,0,0,0.09);
+    --text: #1a1916;
+    --text-muted: #5c5a56;
+    --text-dim: #9b9890;
+    --accent: #a07840;
+    --accent2: #c49656;
+    --coral: #b85f44;
+    --rose: #a45a6e;
+    --sage: #4d7d65;
+    --warm: rgba(160,120,64,0.10);
+    --header-bg: rgba(242,241,239,0.90);
+    --shadow: 0 2px 20px rgba(0,0,0,0.08);
+    --grain-opacity: 0.25;
+  }
+
+  /* ─── SYSTEM PREFERENCE (fallback before JS runs) ─── */
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme]) {
+      --bg: #f2f1ef;
+      --surface: #e9e8e5;
+      --surface2: #dddbd7;
+      --border: rgba(0,0,0,0.09);
+      --text: #1a1916;
+      --text-muted: #5c5a56;
+      --text-dim: #9b9890;
+      --accent: #a07840;
+      --accent2: #c49656;
+      --coral: #b85f44;
+      --rose: #a45a6e;
+      --sage: #4d7d65;
+      --warm: rgba(160,120,64,0.10);
+      --header-bg: rgba(242,241,239,0.90);
+      --shadow: 0 2px 20px rgba(0,0,0,0.08);
+      --grain-opacity: 0.25;
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ─── CREDENTIAL STRIP ─── */
+  .cred-strip {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 80px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow: hidden;
+    margin-top: 64px; /* below fixed header */
+  }
+  .cred-items {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+  .cred-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 28px;
+    border-right: 1px solid var(--border);
+  }
+  .cred-item:first-child { padding-left: 0; }
+  .cred-item:last-child { border-right: none; }
+  .cred-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  .cred-text {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .cred-location {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    display: flex;
+    gap: 16px;
+  }
+  .cred-location span { color: var(--accent); }
+
+  /* ─── GRAIN OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: var(--grain-opacity);
+  }
+
+  /* ─── THEME TOGGLE ─── */
+  .theme-toggle {
+    width: 38px;
+    height: 22px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.3s, border-color 0.3s;
+    flex-shrink: 0;
+  }
+  .theme-toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.3s;
+  }
+  [data-theme="light"] .theme-toggle::after,
+  .theme-toggle.light-on::after {
+    transform: translateX(16px);
+    background: var(--accent);
+  }
+  .toggle-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toggle-icon {
+    font-size: 13px;
+    line-height: 1;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    user-select: none;
+  }
+  .toggle-icon.active { opacity: 1; }
+
+  /* ─── LIGHT MODE SPECIFIC OVERRIDES ─── */
+  [data-theme="light"] .btn-primary {
+    color: #fff;
+  }
+  [data-theme="light"] .hero-bg {
+    background:
+      radial-gradient(ellipse 60% 60% at 70% 50%, rgba(160,120,64,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 20% 80%, rgba(169,90,110,0.05) 0%, transparent 60%);
+  }
+  [data-theme="light"] .card-mock,
+  [data-theme="light"] .card-mock-back,
+  [data-theme="light"] .card-mock-back2,
+  [data-theme="light"] .today-card {
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  }
+  [data-theme="light"] .tl-item::before {
+    box-shadow: 0 0 6px rgba(160,120,64,0.4);
+  }
+  [data-theme="light"] .bar:nth-child(10) {
+    box-shadow: 0 0 6px rgba(160,120,64,0.3);
+  }
+  [data-theme="light"] .trust-big,
+  [data-theme="light"] .meta-num,
+  [data-theme="light"] .pc-price,
+  [data-theme="light"] .cm-num {
+    color: var(--accent);
+  }
+  [data-theme="light"] .panel-badge,
+  [data-theme="light"] .mock-badge {
+    background: rgba(160,120,64,0.12);
+  }
+  [data-theme="light"] .diff-card:hover,
+  [data-theme="light"] .feat-card:hover {
+    background: var(--surface2);
+  }
+  [data-theme="light"] .pricing-card.featured {
+    background: linear-gradient(135deg, rgba(160,120,64,0.06) 0%, transparent 60%), var(--bg);
+  }
+  [data-theme="light"] .promo-bar {
+    background: rgba(160,120,64,0.07);
+    border-color: rgba(160,120,64,0.18);
+  }
+  [data-theme="light"] .ev-chip {
+    background: rgba(160,120,64,0.07);
+    border-color: rgba(160,120,64,0.15);
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 0 48px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--header-bg);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+
+  .logo {
+    font-family: var(--mono);
+    font-size: 16px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .logo span { color: var(--text-muted); }
+
+  nav { display: flex; gap: 32px; }
+  nav a {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  nav a:hover { color: var(--text); }
+
+  .header-actions { display: flex; gap: 12px; align-items: center; }
+
+  .btn {
+    font-family: var(--sans);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    padding: 8px 20px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary {
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    color: #0e0e10;
+    font-weight: 500;
+  }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid rgba(200,169,126,0.4);
+    color: var(--accent);
+  }
+  .btn-outline:hover { background: var(--warm); }
+
+  /* ─── HERO ─── */
+  #hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 70% 50%, rgba(200,169,126,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 20% 80%, rgba(201,123,143,0.04) 0%, transparent 60%);
+  }
+
+  .hero-left {
+    padding: 120px 24px 80px 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero-tag::before {
+    content: '';
+    width: 32px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .hero-h1 {
+    font-family: var(--serif);
+    font-size: clamp(32px, 3.5vw, 54px);
+    font-weight: 300;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    margin-bottom: 28px;
+    color: var(--text);
+  }
+  .hero-h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 14px;
+    color: var(--text-muted);
+    max-width: 440px;
+    line-height: 1.8;
+    margin-bottom: 48px;
+  }
+
+  .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; }
+
+  .hero-meta {
+    margin-top: 64px;
+    display: flex;
+    gap: 40px;
+  }
+  .meta-item {}
+  .meta-num {
+    font-family: var(--mono);
+    font-size: 22px;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+  .meta-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+  }
+
+  /* Hero Right — UI Mockup */
+  .hero-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 80px 80px 24px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .mockup-stack {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .card-mock {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+  }
+
+  .card-mock-back {
+    position: absolute;
+    top: -16px;
+    right: -16px;
+    left: 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    z-index: -1;
+    opacity: 0.6;
+  }
+  .card-mock-back2 {
+    position: absolute;
+    top: -28px;
+    right: -28px;
+    left: 28px;
+    background: rgba(30,30,36,0.5);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 24px;
+    z-index: -2;
+    opacity: 0.4;
+  }
+
+  .mock-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+
+  .mock-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    padding: 4px 10px;
+    border-radius: 2px;
+    background: rgba(200,169,126,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(200,169,126,0.25);
+  }
+
+  .mock-date {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  /* Timeline inside card */
+  .timeline-mini {
+    position: relative;
+    padding-left: 20px;
+  }
+  .timeline-mini::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 8px;
+    bottom: 8px;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+  }
+
+  .tl-item {
+    position: relative;
+    margin-bottom: 16px;
+    opacity: 0.9;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -17px;
+    top: 6px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px rgba(200,169,126,0.5);
+  }
+  .tl-item:nth-child(2)::before { background: var(--rose); box-shadow: 0 0 8px rgba(201,123,143,0.5); opacity: 0.7; }
+  .tl-item:nth-child(3)::before { background: var(--text-dim); opacity: 0.5; }
+
+  .tl-year {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    margin-bottom: 2px;
+  }
+  .tl-title {
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 400;
+  }
+  .tl-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  /* Sparkline graph */
+  .mock-graph {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .graph-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+  .sparkline-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 40px;
+  }
+  .bar {
+    flex: 1;
+    border-radius: 2px 2px 0 0;
+    transition: opacity 0.2s;
+  }
+  .bar:nth-child(1) { height: 30%; background: var(--text-dim); opacity: 0.3; }
+  .bar:nth-child(2) { height: 45%; background: var(--text-dim); opacity: 0.3; }
+  .bar:nth-child(3) { height: 55%; background: var(--accent); opacity: 0.4; }
+  .bar:nth-child(4) { height: 48%; background: var(--accent); opacity: 0.5; }
+  .bar:nth-child(5) { height: 65%; background: var(--accent); opacity: 0.6; }
+  .bar:nth-child(6) { height: 72%; background: var(--accent); opacity: 0.75; }
+  .bar:nth-child(7) { height: 80%; background: var(--accent); opacity: 0.85; }
+  .bar:nth-child(8) { height: 88%; background: var(--accent); }
+  .bar:nth-child(9) { height: 76%; background: var(--accent); opacity: 0.9; }
+  .bar:nth-child(10) { height: 90%; background: var(--accent2); box-shadow: 0 0 8px rgba(200,169,126,0.4); }
+
+  /* Today card overlay */
+  .today-card {
+    position: absolute;
+    bottom: -24px;
+    left: -24px;
+    background: var(--surface2);
+    border: 1px solid rgba(200,169,126,0.2);
+    border-radius: 8px;
+    padding: 14px 18px;
+    width: 220px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+  }
+  .today-tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--coral);
+    margin-bottom: 8px;
+  }
+  .today-items { display: flex; flex-direction: column; gap: 6px; }
+  .today-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .today-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .today-text {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .today-text strong { color: var(--text); font-weight: 500; }
+
+  /* ─── SECTION COMMON ─── */
+  section {
+    padding: 120px 80px;
+  }
+
+  .section-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .section-h2 {
+    font-family: var(--serif);
+    font-size: clamp(26px, 2.5vw, 40px);
+    font-weight: 300;
+    line-height: 1.35;
+    margin-bottom: 20px;
+  }
+
+  .section-sub {
+    font-size: 14px;
+    color: var(--text-muted);
+    max-width: 520px;
+    line-height: 1.8;
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ─── DIFF SECTION (3 Cards) ─── */
+  #diff {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .diff-header {
+    max-width: 1200px;
+    margin: 0 auto 64px;
+    text-align: center;
+  }
+
+  .diff-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .diff-card {
+    background: var(--surface);
+    padding: 48px 40px;
+    position: relative;
+    transition: background 0.3s;
+  }
+  .diff-card:hover { background: var(--surface2); }
+
+  .diff-icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 24px;
+    opacity: 0.7;
+  }
+
+  .diff-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+
+  .diff-title {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 300;
+    margin-bottom: 12px;
+    color: var(--accent);
+  }
+
+  .diff-body {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  /* ─── TIMELINE SECTION ─── */
+  #timeline {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  #timeline-section {
+    padding: 120px 80px;
+    position: relative;
+  }
+
+  .timeline-header {
+    max-width: 600px;
+    margin-bottom: 80px;
+  }
+
+  .tl-full {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 0;
+    max-width: 960px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .tl-years {
+    position: relative;
+    padding-right: 48px;
+  }
+
+  .tl-spine {
+    position: absolute;
+    right: 0;
+    top: 16px;
+    bottom: 16px;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--accent), rgba(200,169,126,0.1));
+  }
+
+  .tl-year-item {
+    padding: 0 48px 56px 0;
+    position: relative;
+    cursor: pointer;
+  }
+  .tl-year-item::after {
+    content: '';
+    position: absolute;
+    right: -5px;
+    top: 8px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--text-dim);
+    transition: all 0.3s;
+  }
+  .tl-year-item.active::after {
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(200,169,126,0.4);
+  }
+
+  .tl-year-label {
+    font-family: var(--mono);
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    color: var(--text-dim);
+    transition: color 0.3s;
+  }
+  .tl-year-item.active .tl-year-label { color: var(--accent); }
+
+  .tl-year-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .tl-year-item.active .tl-year-sub { opacity: 1; color: var(--text-muted); }
+
+  .tl-content-area {
+    padding-left: 64px;
+  }
+
+  .tl-panel {
+    display: none;
+    animation: fadeSlide 0.4s ease;
+  }
+  .tl-panel.active { display: block; }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .panel-inner {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .panel-top {
+    padding: 32px 36px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .panel-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    padding: 4px 12px;
+    border-radius: 2px;
+    background: rgba(200,169,126,0.1);
+    color: var(--accent);
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+
+  .panel-h3 {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 300;
+    margin-bottom: 8px;
+  }
+
+  .panel-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  .panel-mid {
+    padding: 24px 36px;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .change-item {}
+  .change-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+  .change-bar-wrap {
+    background: var(--surface2);
+    height: 4px;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+  .change-bar {
+    height: 100%;
+    background: linear-gradient(to right, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.8s ease;
+  }
+  .change-val {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .panel-bottom {
+    padding: 24px 36px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .rec-chip {
+    font-size: 12px;
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .rec-chip.paid {
+    background: rgba(200,169,126,0.1);
+    border-color: rgba(200,169,126,0.3);
+    color: var(--accent);
+  }
+
+  .rebadge {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 6px 12px;
+    background: rgba(212,131,106,0.1);
+    border: 1px solid rgba(212,131,106,0.3);
+    color: var(--coral);
+    border-radius: 2px;
+  }
+
+  /* ─── AI + HUMAN ─── */
+  #aihuman {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .aihuman-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .aihuman-header {
+    text-align: center;
+    margin-bottom: 72px;
+  }
+
+  .aihuman-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 40px;
+  }
+
+  .aihuman-col {
+    background: var(--surface);
+    padding: 48px;
+  }
+
+  .col-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    margin-bottom: 24px;
+  }
+  .col-tag.ai { color: var(--sage); }
+  .col-tag.human { color: var(--rose); }
+
+  .col-h3 {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 300;
+    margin-bottom: 24px;
+  }
+
+  .col-items { display: flex; flex-direction: column; gap: 14px; }
+  .col-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .col-item::before {
+    content: '—';
+    font-family: var(--mono);
+    color: var(--text-dim);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .evidence-bar {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .ev-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+
+  .ev-chips { display: flex; gap: 10px; flex-wrap: wrap; }
+  .ev-chip {
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 3px;
+    background: rgba(200,169,126,0.08);
+    border: 1px solid rgba(200,169,126,0.15);
+    color: var(--text-muted);
+  }
+  .ev-chip strong { color: var(--accent); font-weight: 500; }
+
+  /* ─── FEATURES ─── */
+  #features-section { padding: 120px 80px; }
+  .feat-inner { max-width: 1200px; margin: 0 auto; }
+  .feat-header { text-align: center; margin-bottom: 64px; }
+
+  .feat-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+    margin-bottom: 48px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .feat-tab {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    padding: 10px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-dim);
+    transition: all 0.2s;
+    border: none;
+    background: none;
+  }
+  .feat-tab.active {
+    background: var(--surface2);
+    color: var(--accent);
+    border: 1px solid rgba(200,169,126,0.2);
+  }
+
+  .feat-content { display: none; }
+  .feat-content.active { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+
+  .feat-card {
+    background: var(--surface);
+    padding: 40px;
+    transition: background 0.2s;
+  }
+  .feat-card:hover { background: var(--surface2); }
+
+  .feat-icon-wrap {
+    width: 36px;
+    height: 36px;
+    margin-bottom: 20px;
+    opacity: 0.6;
+  }
+
+  .feat-card-title {
+    font-family: var(--serif);
+    font-size: 17px;
+    font-weight: 300;
+    margin-bottom: 10px;
+    color: var(--accent);
+  }
+
+  .feat-card-body {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.75;
+  }
+
+  /* ─── PRICING ─── */
+  #pricing { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .pricing-inner { max-width: 1200px; margin: 0 auto; }
+  .pricing-header { text-align: center; margin-bottom: 64px; }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+
+  .pricing-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 40px;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+  .pricing-card:hover { border-color: rgba(200,169,126,0.3); }
+  .pricing-card.featured {
+    border-color: rgba(200,169,126,0.4);
+    background: linear-gradient(135deg, rgba(200,169,126,0.05) 0%, transparent 60%), var(--bg);
+  }
+
+  .pc-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+
+  .pc-name {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 300;
+    margin-bottom: 8px;
+  }
+
+  .pc-price {
+    font-family: var(--mono);
+    font-size: 32px;
+    color: var(--accent);
+    letter-spacing: -0.03em;
+    margin-bottom: 4px;
+  }
+  .pc-price span { font-size: 14px; color: var(--text-dim); }
+
+  .pc-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pc-items { display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
+  .pc-item {
+    font-size: 13px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .pc-item::before {
+    content: '✓';
+    color: var(--sage);
+    flex-shrink: 0;
+    font-size: 12px;
+  }
+
+  .pc-cta {
+    display: block;
+    text-align: center;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    font-family: var(--sans);
+    letter-spacing: 0.04em;
+  }
+
+  .promo-bar {
+    background: rgba(200,169,126,0.08);
+    border: 1px solid rgba(200,169,126,0.15);
+    border-radius: 6px;
+    padding: 16px 24px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .promo-bar strong { color: var(--accent); }
+
+  /* ─── TRUST ─── */
+  #trust { padding: 120px 80px; }
+  .trust-inner { max-width: 1200px; margin: 0 auto; }
+  .trust-header { text-align: center; margin-bottom: 72px; }
+
+  .trust-nums {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 60px;
+  }
+
+  .trust-num-card {
+    background: var(--surface);
+    padding: 40px 32px;
+    text-align: center;
+  }
+
+  .trust-big {
+    font-family: var(--mono);
+    font-size: 40px;
+    color: var(--accent);
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+  }
+
+  .trust-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+  }
+
+  .studio-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 40px;
+  }
+  .studio-item {
+    background: var(--surface);
+    padding: 28px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: background 0.2s;
+  }
+  .studio-item:hover { background: var(--surface2); }
+  .studio-flag {
+    font-size: 22px;
+    line-height: 1;
+  }
+  .studio-info {}
+  .studio-city {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    margin-bottom: 2px;
+  }
+  .studio-addr {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .process-row {
+    display: flex;
+    gap: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .process-step {
+    flex: 1;
+    padding: 32px;
+    position: relative;
+    border-right: 1px solid var(--border);
+  }
+  .process-step:last-child { border-right: none; }
+
+  .process-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+  .process-title { font-size: 14px; color: var(--text); margin-bottom: 6px; }
+  .process-desc { font-size: 12px; color: var(--text-dim); line-height: 1.7; }
+
+  /* ─── CASES ─── */
+  #cases-section { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+  .cases-inner { max-width: 1200px; margin: 0 auto; }
+  .cases-header { margin-bottom: 64px; }
+
+  .cases-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .case-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 36px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .case-card:hover { border-color: rgba(200,169,126,0.3); transform: translateY(-2px); }
+
+  .case-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    margin-bottom: 20px;
+    padding: 4px 10px;
+    border-radius: 2px;
+    display: inline-block;
+  }
+  .case-tag.yellow { background: rgba(200,169,126,0.1); color: var(--accent); border: 1px solid rgba(200,169,126,0.2); }
+  .case-tag.rose { background: rgba(201,123,143,0.1); color: var(--rose); border: 1px solid rgba(201,123,143,0.2); }
+  .case-tag.sage { background: rgba(122,158,138,0.1); color: var(--sage); border: 1px solid rgba(122,158,138,0.2); }
+
+  .case-h3 {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 300;
+    margin-bottom: 12px;
+  }
+
+  .case-body {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    margin-bottom: 24px;
+  }
+
+  .case-metrics {
+    display: flex;
+    gap: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .cm-item {}
+  .cm-num {
+    font-family: var(--mono);
+    font-size: 18px;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+  .cm-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* ─── FAQ ─── */
+  #faq { padding: 120px 80px; }
+  .faq-inner { max-width: 800px; margin: 0 auto; }
+  .faq-header { margin-bottom: 64px; }
+
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .faq-item:first-of-type { border-top: 1px solid var(--border); }
+
+  .faq-q {
+    padding: 24px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    color: var(--text);
+    user-select: none;
+  }
+
+  .faq-toggle {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .faq-toggle::before,
+  .faq-toggle::after {
+    content: '';
+    position: absolute;
+    background: var(--text-muted);
+    transition: transform 0.3s, opacity 0.3s;
+  }
+  .faq-toggle::before { width: 12px; height: 1px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+  .faq-toggle::after { width: 1px; height: 12px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+  .faq-item.open .faq-toggle::after { transform: translate(-50%, -50%) rotate(90deg); opacity: 0; }
+
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+  .faq-item.open .faq-a { max-height: 200px; padding-bottom: 24px; }
+
+  /* ─── FOOTER CTA ─── */
+  #footer-cta {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 120px 80px;
+    text-align: center;
+  }
+
+  .footer-cta-h2 {
+    font-family: var(--serif);
+    font-size: clamp(28px, 3vw, 48px);
+    font-weight: 300;
+    margin-bottom: 20px;
+  }
+  .footer-cta-h2 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .footer-cta-sub {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 48px;
+  }
+
+  .footer-cta-actions { display: flex; justify-content: center; gap: 16px; }
+
+  footer {
+    padding: 32px 80px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-copy {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--text-muted); }
+
+  /* ─── ANIMATIONS ─── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 1024px) {
+    header { padding: 0 24px; }
+    nav { display: none; }
+    #hero { grid-template-columns: 1fr; }
+    .hero-left { padding: 100px 40px 60px; }
+    .hero-right { padding: 40px 40px 80px; }
+    section { padding: 80px 40px; }
+    .diff-grid, .aihuman-grid, .pricing-grid, .cases-grid { grid-template-columns: 1fr; }
+    .trust-nums { grid-template-columns: repeat(2, 1fr); }
+    .feat-content.active { grid-template-columns: 1fr; }
+    footer { padding: 24px 40px; flex-direction: column; gap: 16px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">APL COLOR<span> ·</span> 이미지 연대기</div>
+  <nav>
+    <a href="#diff">소개</a>
+    <a href="#features-section">기능</a>
+    <a href="#pricing">가격</a>
+    <a href="#cases-section">사례</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <div class="header-actions">
+    <div class="toggle-wrap" onclick="toggleTheme()" title="라이트/다크 전환">
+      <span class="toggle-icon" id="icon-dark">🌙</span>
+      <div class="theme-toggle" id="themeToggle"></div>
+      <span class="toggle-icon" id="icon-light">☀️</span>
+    </div>
+    <a href="#" class="btn btn-ghost">내 결과 조회</a>
+    <a href="#" class="btn btn-primary">데모 보기</a>
+    <a href="#" class="btn btn-outline" style="display:none">B2B 도입 문의</a>
+  </div>
+</header>
+
+<!-- CREDENTIAL STRIP -->
+<div class="cred-strip">
+  <div class="cred-items">
+    <div class="cred-item">
+      <div class="cred-dot"></div>
+      <div class="cred-text"><strong>국가공인</strong> 색채 전문성</div>
+    </div>
+    <div class="cred-item">
+      <div class="cred-dot"></div>
+      <div class="cred-text">산업 색채 기준 <strong>Lab 데이터</strong> 기반</div>
+    </div>
+    <div class="cred-item">
+      <div class="cred-dot"></div>
+      <div class="cred-text"><strong>KCFB</strong> 공식 인증 기관</div>
+    </div>
+    <div class="cred-item">
+      <div class="cred-dot"></div>
+      <div class="cred-text">컬러리스트 <strong>기사·산업기사</strong> 보유 강사진</div>
+    </div>
+  </div>
+  <div class="cred-location">
+    <span>서울</span> · 부산 · <span>오사카</span> · 상하이
+  </div>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+
+  <div class="hero-left">
+    <div class="hero-tag">APL COLOR — Personal Color & Image Making</div>
+
+    <h1 class="hero-h1">
+      진단은 시작,<br>
+      당신의 이미지는<br>
+      <em>'기록'으로</em> 완성됩니다
+    </h1>
+
+    <p class="hero-sub">
+      시간이 지나도,<br>
+      트렌드가 바뀌어도,<br>
+      기준은 변화에 맞춰 발전합니다.
+    </p>
+
+    <div class="hero-cta">
+      <a href="#" class="btn btn-primary" style="padding:14px 32px; font-size:14px;">내 진단결과 불러오기</a>
+      <a href="#" class="btn btn-ghost" style="padding:14px 32px; font-size:14px;">3분 데모 보기 →</a>
+    </div>
+
+    <div class="hero-meta">
+      <div class="meta-item">
+        <div class="meta-num">12,400+</div>
+        <div class="meta-label">누적 진단 분석</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-num">4.8</div>
+        <div class="meta-label">평균 만족도</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-num">68%</div>
+        <div class="meta-label">재방문율</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UI MOCKUP -->
+  <div class="hero-right">
+    <div class="mockup-stack">
+      <div class="card-mock-back2"></div>
+      <div class="card-mock-back">
+        <div style="height:8px;background:var(--border);border-radius:4px;margin-bottom:8px;width:60%"></div>
+        <div style="height:8px;background:var(--border);border-radius:4px;width:40%"></div>
+      </div>
+
+      <div class="card-mock">
+        <div class="mock-header">
+          <div class="mock-badge">컬러리스트 기사 검수 완료</div>
+          <div class="mock-date">2026.02.19</div>
+        </div>
+
+        <div class="timeline-mini">
+          <div class="tl-item">
+            <div class="tl-year">2026 · 최신</div>
+            <div class="tl-title">Spring light+웨이브체형+계란형얼굴형</div>
+            <div class="tl-sub">피부 명도↑ · 코랄계열 최적</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-year">2023</div>
+            <div class="tl-title">Spring soft+웨이브체형+계란형얼굴형</div>
+            <div class="tl-sub">무드 변화 감지 · 재측정 권장</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-year">2021 · 첫 진단</div>
+            <div class="tl-title">Spring soft+웨이브체형+계란형얼굴형</div>
+            <div class="tl-sub">초기 기준 기록</div>
+          </div>
+        </div>
+
+        <div class="mock-graph">
+          <div class="graph-label">SKIN BRIGHTNESS · TREND</div>
+          <div class="sparkline-bars">
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Today's update overlay -->
+      <div class="today-card">
+        <div class="today-tag">TODAY'S UPDATE</div>
+        <div class="today-items">
+          <div class="today-item">
+            <div class="today-dot" style="background:var(--coral)"></div>
+            <div class="today-text"><strong>코랄 립</strong> 신상 반영됨</div>
+          </div>
+          <div class="today-item">
+            <div class="today-dot" style="background:var(--sage)"></div>
+            <div class="today-text"><strong>헤어컬러</strong> 트렌드 업데이트</div>
+          </div>
+          <div class="today-item">
+            <div class="today-dot" style="background:var(--accent)"></div>
+            <div class="today-text">면접 <strong>상황 패키지</strong> 추천</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIFF SECTION -->
+<section id="diff">
+  <div class="diff-header reveal">
+    <div class="section-tag">타 온라인진단과 뭐가 다른데?</div>
+    <h2 class="section-h2">3초 안에 이해되는 차이</h2>
+  </div>
+
+  <div class="diff-grid">
+    <div class="diff-card reveal">
+      <div class="diff-num">01</div>
+      <div class="diff-title">연대기</div>
+      <div class="diff-body">
+        한 번의 진단으로 끝나지 않습니다. 기록이 쌓일수록 정교해지는
+        당신만의 이미지 연대기. 피부 변화와 무드의 흐름까지 기록됩니다.
+      </div>
+    </div>
+    <div class="diff-card reveal">
+      <div class="diff-num">02</div>
+      <div class="diff-title">자동 업데이트</div>
+      <div class="diff-body">
+        트렌드와 신상 정보는 당신의 계정에 자동으로 반영됩니다.
+        시즌마다 찾지 않아도, 당신의 컬러와 체형에 맞는 선택이 먼저 제안됩니다.
+      </div>
+    </div>
+    <div class="diff-card reveal">
+      <div class="diff-num">03</div>
+      <div class="diff-title">상황 패키지</div>
+      <div class="diff-body">
+        면접부터 웨딩까지, 중요한 순간마다 당신의 이미지에 맞춘
+        룩과 메이크업을 제안합니다.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE SECTION -->
+<section id="timeline-section">
+  <div id="timeline">
+    <div class="timeline-header reveal">
+      <div class="section-tag">이미지 연대기 · 데모</div>
+      <h2 class="section-h2">시간이 지날수록<br>선명해지는 기록</h2>
+      <p class="section-sub">연도를 선택해 진단 이력과 변화 흐름을 확인하세요.</p>
+    </div>
+
+    <div class="tl-full">
+      <div class="tl-years">
+        <div class="tl-spine"></div>
+        <div class="tl-year-item active" onclick="switchYear('2026')">
+          <div class="tl-year-label">2026</div>
+          <div class="tl-year-sub">최신 분석 완료</div>
+        </div>
+        <div class="tl-year-item" onclick="switchYear('2023')">
+          <div class="tl-year-label">2023</div>
+          <div class="tl-year-sub">무드 변화 감지</div>
+        </div>
+        <div class="tl-year-item" onclick="switchYear('2021')">
+          <div class="tl-year-label">2021</div>
+          <div class="tl-year-sub">첫 진단 기록</div>
+        </div>
+      </div>
+
+      <div class="tl-content-area">
+        <!-- 2026 Panel -->
+        <div class="tl-panel active" id="panel-2026">
+          <div class="panel-inner">
+            <div class="panel-top">
+              <div class="panel-badge">2026 · 최신 분석</div>
+              <h3 class="panel-h3">Spring light-코랄, 피치계열 최적</h3>
+              <p class="panel-desc">최근 피부 명도 상승과 함께 붉은기가 변화함에 따라 파운데이션 호수 변화. 2023년 대비 승모근의 발달로 최적 네크라인의 변화.</p>
+            </div>
+            <div class="panel-mid">
+              <div class="change-item">
+                <div class="change-label">SKIN BRIGHTNESS</div>
+                <div class="change-bar-wrap"><div class="change-bar" style="width:82%"></div></div>
+                <div class="change-val">82 / 100 ↑</div>
+              </div>
+              <div class="change-item">
+                <div class="change-label">CONTRAST LEVEL</div>
+                <div class="change-bar-wrap"><div class="change-bar" style="width:44%"></div></div>
+                <div class="change-val">44 / 100 ↓</div>
+              </div>
+              <div class="change-item">
+                <div class="change-label">WARM TONE RESPONSE</div>
+                <div class="change-bar-wrap"><div class="change-bar" style="width:90%"></div></div>
+                <div class="change-val">90 / 100</div>
+              </div>
+              <div class="change-item">
+                <div class="change-label">PREFERRED MOOD</div>
+                <div class="change-bar-wrap"><div class="change-bar" style="width:68%"></div></div>
+                <div class="change-val">소프트 / 투명감</div>
+              </div>
+            </div>
+            <div class="panel-bottom">
+              <div class="rec-chip">✓ 무료 — 코랄 립 신상</div>
+              <div class="rec-chip paid">★ 유료 — 면접 패키지</div>
+              <div class="rebadge">상태 양호 · 재측정 불필요</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2023 Panel -->
+        <div class="tl-panel" id="panel-2023">
+          <div class="panel-inner">
+            <div class="panel-top">
+              <div class="panel-badge">2023 · 무드 변화 감지</div>
+              <h3 class="panel-h3">웜 딥 어텀 — 대비 중심, 어스 컬러 반응</h3>
+              <p class="panel-desc">2021년 초기 진단과 비교해 피부 대비감이 높아지고 깊이감 있는 어스 계열에서 반응이 뚜렷이 나타났습니다. 헤어컬러 및 미용 시술 이후 측정 데이터 변화가 감지되었습니다.</p>
+            </div>
+            <div class="panel-mid">
+              <div class="change-item">
+                <div class="change-label">SKIN BRIGHTNESS</div>
+                <div class="change-bar-wrap"><div class="change-bar" style="width:61%"></div></div>
+                <div class="change-val">61 / 100</div>
+              </div>
+              <div class="change-item">
+                <div class="change-label">CONTRAST LEVEL</div>
+                <div class="change-bar-wrap"><div class="change-bar" style="width:74%"></div></div>
+                <div class="change-val">74 / 100 ↑</div>
+              </div>
+              <div class="change-item">
+                <div class="change-label">WARM TONE RESPONSE</div>
+                <div class="change-bar-wrap"><div class="change-bar" style="width:78%"></div></div>
+                <div class="change-val">78 / 100</div>
+              </div>
+              <div class="change-item">
+                <div class="change-label">PREFERRED MOOD</div>
+                <div class="change-bar-wrap"><div class="change-bar" style="width:55%"></div></div>
+                <div class="change-val">어스 / 딥감</div>
+              </div>
+            </div>
+            <div class="panel-bottom">
+              <div class="rec-chip">✓ 무료 — 어텀 뉴트럴</div>
+              <div class="rec-chip paid">★ 유료 — 웨딩 패키지</div>
+              <div class="rebadge" style="background:rgba(212,131,106,0.15); border-color:rgba(212,131,106,0.4);">재측정 권장 시기</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2021 Panel -->
+        <div class="tl-panel" id="panel-2021">
+          <div class="panel-inner">
+            <div class="panel-top">
+              <div class="panel-badge">2021 · 첫 진단 기록</div>
+              <h3 class="panel-h3">소프트 어텀 — 초기 기준치 확립</h3>
+              <p class="panel-desc">최초 과학 기기 기반 측정 데이터. 이 기록이 이후 모든 변화 분석의 기준이 됩니다. 컬러리미터 측정 LAB 값 및 초기 무드 프로파일이 저장되었습니다.</p>
+            </div>
+            <div class="panel-mid">
+              <div class="change-item">
+                <div class="change-label">SKIN BRIGHTNESS</div>
+                <div class="change-bar-wrap"><div class="change-bar" style="width:65%"></div></div>
+                <div class="change-val">65 / 100 — 기준</div>
+              </div>
+              <div class="change-item">
+                <div class="change-label">CONTRAST LEVEL</div>
+                <div class="change-bar-wrap"><div class="change-bar" style="width:52%"></div></div>
+                <div class="change-val">52 / 100 — 기준</div>
+              </div>
+              <div class="change-item">
+                <div class="change-label">WARM TONE RESPONSE</div>
+                <div class="change-bar-wrap"><div class="change-bar" style="width:70%"></div></div>
+                <div class="change-val">70 / 100</div>
+              </div>
+              <div class="change-item">
+                <div class="change-label">PREFERRED MOOD</div>
+                <div class="change-bar-wrap"><div class="change-bar" style="width:50%"></div></div>
+                <div class="change-val">내추럴 / 어텀</div>
+              </div>
+            </div>
+            <div class="panel-bottom">
+              <div class="rec-chip">✓ 무료 — 기본 컬러 팔레트</div>
+              <div class="rec-chip" style="opacity:0.4">첫 진단 — 패키지 없음</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI + HUMAN -->
+<section id="aihuman">
+  <div class="aihuman-inner">
+    <div class="aihuman-header reveal">
+      <div class="section-tag">신뢰의 구조</div>
+      <h2 class="section-h2">AI가 분석하고,<br>사람이 검증합니다</h2>
+    </div>
+
+    <div class="aihuman-grid reveal">
+      <div class="aihuman-col">
+        <div class="col-tag ai">AI · 패턴 분석</div>
+        <h3 class="col-h3">기계가 잘하는 것</h3>
+        <div class="col-items">
+          <div class="col-item">피부 Lab 데이터 자동 분류</div>
+          <div class="col-item">유사 고객군 비교 및 패턴 분석</div>
+          <div class="col-item">트렌드·신상 아이템 자동 매칭</div>
+          <div class="col-item">이전 기록 기반 변화 감지</div>
+          <div class="col-item">데이터 기반 1차 추천 도출</div>
+        </div>
+      </div>
+      <div class="aihuman-col">
+        <div class="col-tag human">컨설턴트 · 최종 판단</div>
+        <h3 class="col-h3">사람이 책임지는 것</h3>
+        <div class="col-items">
+          <div class="col-item">경계 케이스 최종 판단</div>
+          <div class="col-item">직업·목표·라이프스타일 반영</div>
+          <div class="col-item">상황 패키지 최종 구성</div>
+          <div class="col-item">예외 피부·특수 조건 보정</div>
+          <div class="col-item">AI 추천 결과 교차 검토</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="evidence-bar reveal">
+      <div class="ev-label">추천 근거 카드</div>
+      <div class="ev-chips">
+        <div class="ev-chip">유사 고객 <strong>1,842명</strong></div>
+        <div class="ev-chip">만족도 <strong>4.7</strong></div>
+        <div class="ev-chip">코랄 대비 로즈 반응 <strong>↑23%</strong></div>
+        <div class="ev-chip">재측정 정확도 <strong>91%</strong></div>
+        <div class="ev-chip">컨설턴트 최종 승인 <strong>✓</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features-section">
+  <div class="feat-inner">
+    <div class="feat-header reveal">
+      <div class="section-tag">핵심 기능</div>
+      <h2 class="section-h2">하나의 플랫폼,<br>세 가지 강점</h2>
+    </div>
+
+    <div class="feat-tabs" role="tablist">
+      <button class="feat-tab active" onclick="switchTab('chronicle')">연대기</button>
+      <button class="feat-tab" onclick="switchTab('trend')">트렌드</button>
+      <button class="feat-tab" onclick="switchTab('life')">라이프 이벤트</button>
+    </div>
+
+    <div class="feat-content active" id="tab-chronicle">
+      <div class="feat-card">
+        <div class="feat-card-title">변화 기록 & 시각화</div>
+        <div class="feat-card-body">피부 톤과 색 반응을 시계열로 기록합니다. 연도별 변화 흐름을 확인하고 가장 안정적인 기준 시점을 참고할 수 있습니다.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-card-title">재진단 시점 안내</div>
+        <div class="feat-card-body">변화 패턴을 분석해 기준 점검이 필요한 시점을 안내합니다. 계절 변화·생활 환경 변화 등을 반영해 개인 맞춤 알림을 제공합니다.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-card-title">과거 진단 연동</div>
+        <div class="feat-card-body">과거 진단 PDF를 업로드하면 이미지 연대기에 연결됩니다. 이전 기록도 현재 기준과 함께 관리할 수 있습니다.</div>
+      </div>
+    </div>
+
+    <div class="feat-content" id="tab-trend">
+      <div class="feat-card">
+        <div class="feat-card-title">내 이미지 기반 신상 제안</div>
+        <div class="feat-card-body">시즌별 트렌드 속에서 당신의 컬러·체형·얼굴형에 맞는 아이템을 제안합니다. 브랜드와 카테고리별 정교한 필터링이 가능합니다.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-card-title">트렌드 헤어 & 스타일</div>
+        <div class="feat-card-body">최신 헤어 트렌드 중 당신의 얼굴형과 이미지 무드에 어울리는 스타일을 안내합니다. 시뮬레이션 참고 자료로 활용할 수 있습니다.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-card-title">유사 타입 데이터 분석</div>
+        <div class="feat-card-body">비슷한 컬러·체형·얼굴형 조합을 가진 고객들의 실제 선택 데이터를 기반으로 추천합니다. 추천 근거를 직접 확인할 수 있습니다.</div>
+      </div>
+    </div>
+
+    <div class="feat-content" id="tab-life">
+      <div class="feat-card">
+        <div class="feat-card-title">면접 & 커리어 패키지</div>
+        <div class="feat-card-body">직무와 기업 분위기에 맞춰 컬러·실루엣·이미지 무드를 설계합니다. 첫인상이 전략이 되도록 완성합니다.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-card-title">웨딩 이미지 패키지</div>
+        <div class="feat-card-body">주인공으로 빛나는 순간도, 하객으로 조화로운 순간도 당신의 기준에 맞춰 설계합니다.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-card-title">브랜딩 & 공식석상 이미지</div>
+        <div class="feat-card-body">프로필 촬영, 발표, 공식 행사까지 사회적 자리에서 신뢰감과 존재감이 드러나도록 설계합니다.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="pricing-inner">
+    <div class="pricing-header reveal">
+      <div class="section-tag">가격 설계</div>
+      <h2 class="section-h2">필요한 만큼,<br>원하는 만큼</h2>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="pricing-card reveal">
+        <div class="pc-tag">FREE</div>
+        <div class="pc-name">기본 조회</div>
+        <div class="pc-price">₩0<span> / 영구</span></div>
+        <div class="pc-desc">진단 결과를 언제든 조회하고 기본 연대기를 유지합니다.</div>
+        <div class="pc-items">
+          <div class="pc-item">진단 결과 조회 · 연대기 기록</div>
+          <div class="pc-item">기본 컬러 팔레트 PDF</div>
+          <div class="pc-item">무료 업데이트 1-2개 / 시즌</div>
+        </div>
+        <a href="#" class="pc-cta btn-ghost" style="border:1px solid var(--border);color:var(--text-muted);">시작하기 — 무료</a>
+      </div>
+
+      <div class="pricing-card featured reveal">
+        <div class="pc-tag" style="color:var(--accent)">POPULAR · 업데이트</div>
+        <div class="pc-name">트렌드 구독</div>
+        <div class="pc-price">₩9,900<span> / 월</span></div>
+        <div class="pc-desc">시즌마다 자동 업데이트되는 신상 큐레이션과 트렌드 인사이트를 받습니다.</div>
+        <div class="pc-items">
+          <div class="pc-item">무제한 트렌드 업데이트</div>
+          <div class="pc-item">내 타입 신상 · 헤어 추천</div>
+          <div class="pc-item">유사 고객 인사이트 데이터</div>
+          <div class="pc-item">변화 그래프 고급 분석</div>
+        </div>
+        <a href="#" class="pc-cta btn-primary">구독 시작하기</a>
+      </div>
+
+      <div class="pricing-card reveal">
+        <div class="pc-tag">EVENT · 상황별</div>
+        <div class="pc-name">상황 패키지</div>
+        <div class="pc-price">₩29,000~<span> / 건</span></div>
+        <div class="pc-desc">면접·웨딩·하객·촬영 등 이벤트 특화 완성형 패키지입니다.</div>
+        <div class="pc-items">
+          <div class="pc-item">상황별 룩 큐레이션 (풀세트)</div>
+          <div class="pc-item">컨설턴트 직접 검수</div>
+          <div class="pc-item">메이크업 · 헤어 방향 포함</div>
+          <div class="pc-item">구매 후 30일 수정 1회</div>
+        </div>
+        <a href="#" class="pc-cta btn-outline">패키지 보기</a>
+      </div>
+    </div>
+
+    <div class="promo-bar reveal">
+      🎁 지금 가입하면 <strong>무료 업데이트 2개 추가 제공</strong> — 이번 시즌 한정 캠페인
+    </div>
+  </div>
+</section>
+
+<!-- TRUST -->
+<section id="trust">
+  <div class="trust-inner">
+    <div class="trust-header reveal">
+      <div class="section-tag">신뢰 지표</div>
+      <h2 class="section-h2">숫자로 보는 APL</h2>
+    </div>
+
+    <div class="trust-nums">
+      <div class="trust-num-card reveal">
+        <div class="trust-big">12,400+</div>
+        <div class="trust-label">누적 진단 건수</div>
+      </div>
+      <div class="trust-num-card reveal">
+        <div class="trust-big">68%</div>
+        <div class="trust-label">12개월 내 재방문율</div>
+      </div>
+      <div class="trust-num-card reveal">
+        <div class="trust-big">4.8 / 5</div>
+        <div class="trust-label">서비스 만족도</div>
+      </div>
+      <div class="trust-num-card reveal">
+        <div class="trust-big">91%</div>
+        <div class="trust-label">업데이트 적용률</div>
+      </div>
+    </div>
+
+    <div class="studio-bar reveal">
+      <div class="studio-item">
+        <div class="studio-flag">🇰🇷</div>
+        <div class="studio-info">
+          <div class="studio-city">SEOUL</div>
+          <div class="studio-addr">강남구 선릉로 428, 11F</div>
+        </div>
+      </div>
+      <div class="studio-item">
+        <div class="studio-flag">🇰🇷</div>
+        <div class="studio-info">
+          <div class="studio-city">BUSAN</div>
+          <div class="studio-addr">부산진구 서전로 8, 7F</div>
+        </div>
+      </div>
+      <div class="studio-item">
+        <div class="studio-flag">🇯🇵</div>
+        <div class="studio-info">
+          <div class="studio-city">OSAKA</div>
+          <div class="studio-addr">오사카 스튜디오</div>
+        </div>
+      </div>
+      <div class="studio-item">
+        <div class="studio-flag">🇨🇳</div>
+        <div class="studio-info">
+          <div class="studio-city">SHANGHAI</div>
+          <div class="studio-addr">상하이 스튜디오</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="process-row reveal">
+      <div class="process-step">
+        <div class="process-num">STEP 01</div>
+        <div class="process-title">과학 기기 측정</div>
+        <div class="process-desc">LS170/175 컬러리미터로 피부 LAB값 객관 측정</div>
+      </div>
+      <div class="process-step">
+        <div class="process-num">STEP 02</div>
+        <div class="process-title">AI 패턴 분석</div>
+        <div class="process-desc">유사 고객군 분류, 확률 산출, 추천 생성</div>
+      </div>
+      <div class="process-step">
+        <div class="process-num">STEP 03</div>
+        <div class="process-title">컨설턴트 검수</div>
+        <div class="process-desc">전문 인력 최종 승인 및 맥락 반영</div>
+      </div>
+      <div class="process-step">
+        <div class="process-num">STEP 04</div>
+        <div class="process-title">기록 & 업데이트</div>
+        <div class="process-desc">연대기 저장, 이후 자동 트렌드 반영 시작</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CASES -->
+<section id="cases-section">
+  <div class="cases-inner">
+    <div class="cases-header reveal">
+      <div class="section-tag">케이스 스터디</div>
+      <h2 class="section-h2">기록이 만들어낸<br>실제 변화</h2>
+    </div>
+
+    <div class="cases-grid">
+      <div class="case-card reveal">
+        <div class="case-tag yellow">3년 후 재방문</div>
+        <h3 class="case-h3">피부 변화를 데이터로 증명한 재진단</h3>
+        <p class="case-body">2021년 초기 진단 이후 뷰티 시술로 피부톤이 달라진 고객. 연대기 데이터가 변화 구간을 명확히 보여줘 재진단 신뢰도를 높였습니다.</p>
+        <div class="case-metrics">
+          <div class="cm-item">
+            <div class="cm-num">↑18%</div>
+            <div class="cm-label">명도 변화 폭</div>
+          </div>
+          <div class="cm-item">
+            <div class="cm-num">4.9</div>
+            <div class="cm-label">재진단 만족도</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="case-card reveal">
+        <div class="case-tag rose">면접 패키지</div>
+        <h3 class="case-h3">대기업 면접 3주 전 룩 완성</h3>
+        <p class="case-body">컨설턴트 검수 포함 면접 패키지로 의상·메이크업·헤어 방향을 3일 만에 확정. "떨지 않아도 될 자신감이 생겼다"는 후기를 남겼습니다.</p>
+        <div class="case-metrics">
+          <div class="cm-item">
+            <div class="cm-num">3일</div>
+            <div class="cm-label">룩 확정 기간</div>
+          </div>
+          <div class="cm-item">
+            <div class="cm-num">5.0</div>
+            <div class="cm-label">패키지 만족도</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="case-card reveal">
+        <div class="case-tag sage">하객 패키지</div>
+        <h3 class="case-h3">웨딩 드레스코드 완벽 대응</h3>
+        <p class="case-body">화이트 드레스코드 하객룩을 내 퍼스널컬러 기준으로 재해석. 주인공과 조화를 이루면서도 자신의 컬러를 살린 룩으로 주목받았습니다.</p>
+        <div class="case-metrics">
+          <div class="cm-item">
+            <div class="cm-num">2시간</div>
+            <div class="cm-label">쇼핑 총 소요</div>
+          </div>
+          <div class="cm-item">
+            <div class="cm-num">4.8</div>
+            <div class="cm-label">하객룩 만족도</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="faq-inner">
+    <div class="faq-header reveal">
+      <div class="section-tag">FAQ</div>
+      <h2 class="section-h2">자주 묻는 질문</h2>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">예전 진단 PDF도 연대기에 불러올 수 있나요? <div class="faq-toggle"></div></div>
+      <div class="faq-a">네, 과거에 받으신 PDF 진단서를 업로드하면 AI가 데이터를 파싱해 연대기에 편입시킵니다. 완벽한 파싱이 어려운 경우 컨설턴트가 수동으로 입력해드립니다. 단, APL 기기(LS170/175)로 측정된 데이터가 포함된 경우 정확도가 가장 높습니다.</div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">추천 근거는 어떻게 확인하나요? <div class="faq-toggle"></div></div>
+      <div class="faq-a">모든 추천에는 '근거 카드'가 함께 제공됩니다. 유사 고객 수, 만족도 데이터, 비교 컬러 반응 수치, 컨설턴트 승인 여부가 투명하게 공개됩니다. "왜 이 아이템인가"를 데이터로 확인하실 수 있습니다.</div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">재측정은 언제 필요한가요? <div class="faq-toggle"></div></div>
+      <div class="faq-a">일반적으로 2-3년 주기를 권장하지만, AI가 헤어시술·피부 변화·계절 누적 등을 감지하면 더 빨리 재측정을 권장하는 알림을 보냅니다. 연대기 그래프에서 변화 폭이 큰 구간에서는 '재측정 권장' 배지가 자동으로 노출됩니다.</div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">개인정보와 사진은 안전하게 관리되나요? <div class="faq-toggle"></div></div>
+      <div class="faq-a">수집된 피부 측정 데이터와 이미지는 암호화 저장되며 제3자에게 공유되지 않습니다. 데이터 보안 검수 프로세스와 전문 인력을 통해 관리됩니다. 계정 삭제 시 모든 데이터가 완전 삭제됩니다.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER CTA -->
+<section id="footer-cta">
+  <div class="section-tag reveal">지금 시작하기</div>
+  <h2 class="footer-cta-h2 reveal">
+    당신의 <em>이미지 연대기</em>,<br>오늘 첫 페이지를 엽니다
+  </h2>
+  <p class="footer-cta-sub reveal">진단은 이미 끝났습니다. 이제 기록이 시작될 차례입니다.</p>
+  <div class="footer-cta-actions reveal">
+    <a href="#" class="btn btn-primary" style="padding:16px 40px;font-size:15px;">내 결과 불러오기</a>
+    <a href="#" class="btn btn-ghost" style="padding:16px 40px;font-size:15px;">무료 업데이트 받기</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-copy">© 2026 (주)에이피엘스 — APL COLOR 이미지 연대기 | 0507-1335-3237</div>
+  <div class="footer-links">
+    <a href="#">개인정보처리방침</a>
+    <a href="#">이용약관</a>
+    <a href="#">B2B 도입 문의</a>
+    <a href="#">고객센터</a>
+  </div>
+</footer>
+
+<script>
+  // ─── THEME SYSTEM ───
+  const html = document.documentElement;
+  const toggle = document.getElementById('themeToggle');
+  const iconDark = document.getElementById('icon-dark');
+  const iconLight = document.getElementById('icon-light');
+
+  function getSystemTheme() {
+    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  }
+
+  function applyTheme(theme) {
+    html.setAttribute('data-theme', theme);
+    localStorage.setItem('apl-theme', theme);
+    if (theme === 'light') {
+      toggle.classList.add('light-on');
+      iconLight.classList.add('active');
+      iconDark.classList.remove('active');
+    } else {
+      toggle.classList.remove('light-on');
+      iconDark.classList.add('active');
+      iconLight.classList.remove('active');
+    }
+  }
+
+  function toggleTheme() {
+    const current = html.getAttribute('data-theme') || getSystemTheme();
+    applyTheme(current === 'dark' ? 'light' : 'dark');
+  }
+
+  // Init: saved > system
+  const saved = localStorage.getItem('apl-theme');
+  applyTheme(saved || getSystemTheme());
+
+  // System change listener
+  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
+    if (!localStorage.getItem('apl-theme')) applyTheme(e.matches ? 'light' : 'dark');
+  });
+
+  // ─── Timeline switcher ───
+  function switchYear(year) {
+    document.querySelectorAll('.tl-year-item').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tl-panel').forEach(el => el.classList.remove('active'));
+    
+    event.currentTarget.classList.add('active');
+    document.getElementById('panel-' + year).classList.add('active');
+  }
+
+  // Feature tabs
+  function switchTab(tab) {
+    document.querySelectorAll('.feat-tab').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.feat-content').forEach(el => el.classList.remove('active'));
+    
+    event.currentTarget.classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+  }
+
+  // FAQ toggle
+  function toggleFaq(el) {
+    const isOpen = el.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if (!isOpen) el.classList.add('open');
+  }
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        // Stagger children
+        entry.target.querySelectorAll('.reveal').forEach((child, i) => {
+          child.style.transitionDelay = (i * 0.08) + 's';
+          child.classList.add('visible');
+        });
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Hero entrance
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      document.querySelector('.hero-h1').style.opacity = '1';
+      document.querySelector('.hero-h1').style.transform = 'translateY(0)';
+    }, 100);
+  });
+
+  // Active nav on scroll
+  const sections = document.querySelectorAll('section[id]');
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY + 80;
+    sections.forEach(sec => {
+      if (y >= sec.offsetTop && y < sec.offsetTop + sec.offsetHeight) {
+        document.querySelectorAll('nav a').forEach(a => a.style.color = '');
+        const link = document.querySelector(`nav a[href="#${sec.id}"]`);
+        if (link) link.style.color = 'var(--accent)';
+      }
+    });
+  });
+</script>
+</body>
+</html>
