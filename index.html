@@ -2289,16 +2289,10 @@ async function handlePurchase() {
     }
 
     console.log('✅ Checkout session created:', data.checkoutId);
+    console.log('Checkout URL:', data.checkoutUrl);
 
-    // Polar Embed 방식으로 결제 페이지 열기
-    const checkoutUrl = `https://sandbox.polar.sh/checkout/${data.checkoutId}`;
-    window.open(checkoutUrl, '_blank');
-
-    // 버튼 복원
-    btn.disabled = false;
-    btn.textContent = '지금 구매하기 — ₩69,000';
-
-    alert('결제 창이 열렸습니다. 팝업 차단을 해제해주세요.');
+    // Polar 결제 페이지로 이동
+    window.location.href = data.checkoutUrl;
 
   } catch (error) {
     console.error('구매 처리 오류:', error);
