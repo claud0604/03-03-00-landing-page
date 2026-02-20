@@ -303,10 +303,13 @@
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
   }
 
   .checklist-item {
-    padding: 16px 0;
+    padding: 16px 12px;
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
@@ -315,15 +318,16 @@
     transition: background 0.2s;
   }
 
-  .checklist-item:last-child {
+  .checklist-item:nth-last-child(-n+2) {
     border-bottom: none;
+  }
+
+  .checklist-item:nth-child(odd) {
+    border-right: 1px solid var(--border);
   }
 
   .checklist-item:hover {
     background: var(--warm);
-    margin: 0 -12px;
-    padding-left: 12px;
-    padding-right: 12px;
     border-radius: 8px;
   }
 
@@ -410,6 +414,18 @@
     }
     .guide-grid {
       grid-template-columns: 1fr;
+    }
+    .checklist {
+      grid-template-columns: 1fr;
+    }
+    .checklist-item:nth-child(odd) {
+      border-right: none;
+    }
+    .checklist-item:nth-last-child(-n+2) {
+      border-bottom: 1px solid var(--border);
+    }
+    .checklist-item:last-child {
+      border-bottom: none;
     }
     .top-nav {
       flex-direction: column;
