@@ -266,67 +266,6 @@
     color: var(--accent);
   }
 
-  .photo-guide {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 32px;
-  }
-
-  .guide-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 32px;
-    margin-top: 24px;
-  }
-
-  .guide-item h4 {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 12px;
-    color: var(--accent);
-  }
-
-  .guide-item ul {
-    list-style: none;
-    font-size: 14px;
-    line-height: 2;
-  }
-
-  .guide-item ul li {
-    padding-left: 20px;
-    position: relative;
-  }
-
-  .guide-item ul li::before {
-    content: '·';
-    position: absolute;
-    left: 8px;
-    color: var(--accent);
-    font-weight: bold;
-  }
-
-  .warning-box {
-    background: #fff5f0;
-    border-left: 3px solid #d4836a;
-    padding: 20px;
-    margin-top: 24px;
-    border-radius: 4px;
-  }
-
-  .warning-box h4 {
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #d4836a;
-  }
-
-  .warning-box p {
-    font-size: 14px;
-    line-height: 1.7;
-    color: var(--text-muted);
-  }
-
   .checklist {
     background: white;
     border: 1px solid var(--border);
@@ -533,9 +472,6 @@
     .container {
       padding: 60px 20px;
     }
-    .guide-grid {
-      grid-template-columns: 1fr;
-    }
     .top-nav {
       flex-direction: column;
       align-items: stretch;
@@ -716,93 +652,6 @@
           기록을 통해 완성되는 당신만의 이미지 연대기, 퍼스널컬러는 그 시작점입니다.<br>
           평생 업데이트와 전문 컨설팅이 포함된 정식 진단으로 당신의 이미지를 완성하세요.
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 사진 촬영 가이드 -->
-  <div class="section">
-    <h2>사진 촬영 가이드</h2>
-    <div class="photo-guide">
-      <p style="margin-bottom: 24px; font-size: 15px; color: var(--text-muted);">
-        정확한 AI 분석을 위해 아래 가이드를 준수해 주세요. 촬영 조건이 정확할수록 더 신뢰할 수 있는 결과를 얻을 수 있습니다.
-      </p>
-
-      <div class="guide-grid">
-        <div class="guide-item">
-          <h4>📸 카메라 설정</h4>
-          <ul>
-            <li>기본 카메라 모드 사용 (광각 X)</li>
-            <li>후면 카메라 권장 (전면보다 왜곡 적음)</li>
-            <li>카메라 높이: 눈~입 사이 수평</li>
-            <li>촬영 거리: 팔 길이보다 약간 먼 거리 (60cm)</li>
-            <li>카메라 수직 유지 (기울지 않도록)</li>
-          </ul>
-        </div>
-
-        <div class="guide-item">
-          <h4>💡 조명 및 배경</h4>
-          <ul>
-            <li>밝은 장소에서 촬영 (자연광 최적)</li>
-            <li>조명은 얼굴 정면에 위치</li>
-            <li>역광 및 천장 조명 피하기</li>
-            <li>단순한 배경 (흰색, 베이지 권장)</li>
-            <li>배경에 그림자가 생기지 않도록</li>
-          </ul>
-        </div>
-
-        <div class="guide-item">
-          <h4>👕 복장 및 액세서리</h4>
-          <ul>
-            <li>상의: 흰색 또는 베이지 단색 권장</li>
-            <li>어깨와 쇄골이 보이는 라운드넥</li>
-            <li>무늬 없는 심플한 옷</li>
-            <li>선글라스, 모자, 귀걸이 제거</li>
-            <li>헤어 액세서리 제거</li>
-          </ul>
-        </div>
-
-        <div class="guide-item">
-          <h4>💄 메이크업 및 헤어</h4>
-          <ul>
-            <li>메이크업 없는 맨얼굴 상태</li>
-            <li>또는 최소한의 베이스 메이크업만</li>
-            <li>귀가 보이도록 머리 넘기기</li>
-            <li>자연스러운 정면 응시</li>
-            <li>무표정 유지 (자연스러운 표정)</li>
-          </ul>
-        </div>
-
-        <div class="guide-item">
-          <h4>🧍 자세 및 각도</h4>
-          <ul>
-            <li>정면을 바라보는 얼굴 (각도 X)</li>
-            <li>어깨 양쪽에 여유 공간 확보</li>
-            <li>바른 자세 유지 (구부정하지 않게)</li>
-            <li>얼굴이 화면 중앙에 위치</li>
-            <li>크롭하지 말고 전체 프레임 활용</li>
-          </ul>
-        </div>
-
-        <div class="guide-item">
-          <h4>⚠️ 피해야 할 것</h4>
-          <ul>
-            <li>갤럭시 울트라 시리즈 (렌즈 왜곡)</li>
-            <li>복숭아색 배경 (피부톤 왜곡)</li>
-            <li>진한 메이크업 또는 컬러 렌즈</li>
-            <li>패턴이 있는 옷 또는 강한 색상</li>
-            <li>후보정 및 필터 사용</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="warning-box">
-        <h4>🔍 정확도 향상 TIP</h4>
-        <p>
-          사진 품질이 분석 정확도에 직접적인 영향을 미칩니다.
-          특히 조명(정면 자연광)과 배경(단순한 밝은 배경)이 가장 중요한 요소입니다.
-          조명이 너무 어둡거나 역광이 있을 경우 피부톤이 정확히 분석되지 않을 수 있습니다.
-        </p>
       </div>
     </div>
   </div>
