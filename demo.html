@@ -36,17 +36,39 @@
     padding: 80px 24px;
   }
 
-  .back-btn {
+  .top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    gap: 16px;
+  }
+
+  .back-btn, .demo-start-btn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: var(--text-muted);
     text-decoration: none;
     font-size: 14px;
-    margin-bottom: 40px;
-    transition: color 0.2s;
+    transition: all 0.2s;
+  }
+
+  .back-btn {
+    color: var(--text-muted);
   }
   .back-btn:hover { color: var(--accent); }
+
+  .demo-start-btn {
+    background: var(--accent);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+  }
+  .demo-start-btn:hover {
+    background: var(--accent2);
+    transform: translateY(-1px);
+  }
 
   h1 {
     font-family: var(--serif);
@@ -202,6 +224,67 @@
     color: var(--accent);
   }
 
+  .photo-guide {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+  }
+
+  .guide-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 32px;
+    margin-top: 24px;
+  }
+
+  .guide-item h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--accent);
+  }
+
+  .guide-item ul {
+    list-style: none;
+    font-size: 14px;
+    line-height: 2;
+  }
+
+  .guide-item ul li {
+    padding-left: 20px;
+    position: relative;
+  }
+
+  .guide-item ul li::before {
+    content: '·';
+    position: absolute;
+    left: 8px;
+    color: var(--accent);
+    font-weight: bold;
+  }
+
+  .warning-box {
+    background: #fff5f0;
+    border-left: 3px solid #d4836a;
+    padding: 20px;
+    margin-top: 24px;
+    border-radius: 4px;
+  }
+
+  .warning-box h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #d4836a;
+  }
+
+  .warning-box p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-muted);
+  }
+
   .checklist {
     background: white;
     border: 1px solid var(--border);
@@ -299,13 +382,26 @@
     .container {
       padding: 60px 20px;
     }
+    .guide-grid {
+      grid-template-columns: 1fr;
+    }
+    .top-nav {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .demo-start-btn {
+      justify-content: center;
+    }
   }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <a href="index.html" class="back-btn">← 메인으로 돌아가기</a>
+  <div class="top-nav">
+    <a href="index.html" class="back-btn">← 메인으로 돌아가기</a>
+    <a href="#" class="demo-start-btn">데모 시작하기 →</a>
+  </div>
 
   <h1>데모 체험 준비하기</h1>
   <p class="subtitle">AI 기반 간단 진단을 통해 APL COLOR의 차별점을 경험하세요</p>
@@ -353,29 +449,29 @@
 
   <!-- 준비 과정 -->
   <div class="section">
-    <h2>준비 과정</h2>
+    <h2>진행 절차</h2>
     <div class="process-grid">
       <div class="process-card">
         <div class="process-num">STEP 01</div>
-        <div class="process-title">사진 준비</div>
+        <div class="process-title">사진 촬영</div>
         <div class="process-desc">
-          자연광 아래에서 정면 얼굴 사진을 촬영하세요. 메이크업 없는 맨얼굴, 귀가 보이도록 머리를 넘긴 상태가 가장 좋습니다.
+          아래 가이드에 따라 정면 얼굴 사진을 촬영하세요. 정확한 분석을 위해 자연광, 맨얼굴, 단순한 배경이 중요합니다.
         </div>
       </div>
 
       <div class="process-card">
         <div class="process-num">STEP 02</div>
-        <div class="process-title">데모 진행</div>
+        <div class="process-title">사진 업로드 및 AI 분석</div>
         <div class="process-desc">
-          업로드한 사진을 AI가 분석합니다. 퍼스널 컬러, 얼굴형, 체형 분석 결과가 약 30초 내에 제공됩니다.
+          촬영한 사진을 업로드하면 AI가 자동으로 분석을 시작합니다. 퍼스널 컬러, 얼굴형, 체형 결과가 약 30초 내에 제공됩니다.
         </div>
       </div>
 
       <div class="process-card">
         <div class="process-num">STEP 03</div>
-        <div class="process-title">결과 확인</div>
+        <div class="process-title">데모 결과 확인</div>
         <div class="process-desc">
-          데모 결과 페이지에서 기본 분석을 확인하세요. 정식 진단에서는 여기에 베스트/워스트 컬러, 헤어 시뮬레이션, 상황별 제안 등이 추가됩니다.
+          기본 분석 결과를 확인하세요. 정식 진단에서는 컬러리스트의 디테일한 검증, 베스트/워스트 컬러, AI 헤어 시뮬레이션 등이 추가됩니다.
         </div>
       </div>
 
@@ -383,33 +479,122 @@
         <div class="process-num">STEP 04</div>
         <div class="process-title">정식 진단 신청</div>
         <div class="process-desc">
-          데모가 마음에 드셨다면, 컬러리스트의 디테일한 검증과 평생 업데이트가 포함된 정식 진단을 신청하세요.
+          데모가 만족스러우셨다면, 평생 업데이트와 전문 컨설팅이 포함된 정식 진단을 신청하세요.
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 체크리스트 -->
+  <!-- 사진 촬영 가이드 -->
   <div class="section">
-    <h2>사진 촬영 체크리스트</h2>
+    <h2>사진 촬영 가이드</h2>
+    <div class="photo-guide">
+      <p style="margin-bottom: 24px; font-size: 15px; color: var(--text-muted);">
+        정확한 AI 분석을 위해 아래 가이드를 준수해 주세요. 촬영 조건이 정확할수록 더 신뢰할 수 있는 결과를 얻을 수 있습니다.
+      </p>
+
+      <div class="guide-grid">
+        <div class="guide-item">
+          <h4>📸 카메라 설정</h4>
+          <ul>
+            <li>기본 카메라 모드 사용 (광각 X)</li>
+            <li>후면 카메라 권장 (전면보다 왜곡 적음)</li>
+            <li>카메라 높이: 눈~입 사이 수평</li>
+            <li>촬영 거리: 팔 길이보다 약간 먼 거리 (60cm)</li>
+            <li>카메라 수직 유지 (기울지 않도록)</li>
+          </ul>
+        </div>
+
+        <div class="guide-item">
+          <h4>💡 조명 및 배경</h4>
+          <ul>
+            <li>밝은 장소에서 촬영 (자연광 최적)</li>
+            <li>조명은 얼굴 정면에 위치</li>
+            <li>역광 및 천장 조명 피하기</li>
+            <li>단순한 배경 (흰색, 베이지 권장)</li>
+            <li>배경에 그림자가 생기지 않도록</li>
+          </ul>
+        </div>
+
+        <div class="guide-item">
+          <h4>👕 복장 및 액세서리</h4>
+          <ul>
+            <li>상의: 흰색 또는 베이지 단색 권장</li>
+            <li>어깨와 쇄골이 보이는 라운드넥</li>
+            <li>무늬 없는 심플한 옷</li>
+            <li>선글라스, 모자, 귀걸이 제거</li>
+            <li>헤어 액세서리 제거</li>
+          </ul>
+        </div>
+
+        <div class="guide-item">
+          <h4>💄 메이크업 및 헤어</h4>
+          <ul>
+            <li>메이크업 없는 맨얼굴 상태</li>
+            <li>또는 최소한의 베이스 메이크업만</li>
+            <li>귀가 보이도록 머리 넘기기</li>
+            <li>자연스러운 정면 응시</li>
+            <li>무표정 유지 (자연스러운 표정)</li>
+          </ul>
+        </div>
+
+        <div class="guide-item">
+          <h4>🧍 자세 및 각도</h4>
+          <ul>
+            <li>정면을 바라보는 얼굴 (각도 X)</li>
+            <li>어깨 양쪽에 여유 공간 확보</li>
+            <li>바른 자세 유지 (구부정하지 않게)</li>
+            <li>얼굴이 화면 중앙에 위치</li>
+            <li>크롭하지 말고 전체 프레임 활용</li>
+          </ul>
+        </div>
+
+        <div class="guide-item">
+          <h4>⚠️ 피해야 할 것</h4>
+          <ul>
+            <li>갤럭시 울트라 시리즈 (렌즈 왜곡)</li>
+            <li>복숭아색 배경 (피부톤 왜곡)</li>
+            <li>진한 메이크업 또는 컬러 렌즈</li>
+            <li>패턴이 있는 옷 또는 강한 색상</li>
+            <li>후보정 및 필터 사용</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="warning-box">
+        <h4>🔍 정확도 향상 TIP</h4>
+        <p>
+          사진 품질이 분석 정확도에 직접적인 영향을 미칩니다.
+          특히 조명(정면 자연광)과 배경(단순한 밝은 배경)이 가장 중요한 요소입니다.
+          조명이 너무 어둡거나 역광이 있을 경우 피부톤이 정확히 분석되지 않을 수 있습니다.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 최종 체크리스트 -->
+  <div class="section">
+    <h2>촬영 전 최종 체크</h2>
     <div class="checklist">
       <ul>
-        <li>자연광 또는 밝은 백색 조명 아래에서 촬영</li>
-        <li>정면을 응시한 얼굴 사진 (각도 X)</li>
-        <li>메이크업 없는 맨얼굴 상태</li>
-        <li>귀가 보이도록 머리를 뒤로 넘기거나 묶기</li>
-        <li>흰색 또는 베이지 상의 착용 권장 (피부톤 왜곡 방지)</li>
-        <li>선글라스, 모자 등 액세서리 제거</li>
+        <li>✓ 밝은 장소에서 정면 자연광 확보</li>
+        <li>✓ 흰색/베이지 단색 상의 착용</li>
+        <li>✓ 메이크업 제거 또는 최소화</li>
+        <li>✓ 귀가 보이도록 머리 정리</li>
+        <li>✓ 액세서리 모두 제거 (귀걸이, 안경, 모자 등)</li>
+        <li>✓ 정면을 응시하는 무표정 얼굴</li>
+        <li>✓ 카메라 눈높이, 60cm 거리 유지</li>
+        <li>✓ 단순한 배경 (흰색 벽 권장)</li>
       </ul>
     </div>
   </div>
 
   <!-- CTA -->
   <div class="cta-box">
-    <h3>지금 바로 데모를 시작하세요</h3>
-    <p>준비가 되셨나요? 3분이면 당신의 이미지 연대기 첫 페이지가 열립니다.</p>
+    <h3>준비가 완료되셨나요?</h3>
+    <p>3분이면 당신의 이미지 연대기 첫 페이지가 열립니다.</p>
     <div class="btn-group">
-      <a href="#" class="btn btn-primary">데모 시작하기 →</a>
+      <a href="#" class="btn btn-primary">지금 바로 데모 시작 →</a>
       <a href="index.html#pricing" class="btn btn-secondary">정식 진단 가격 보기</a>
     </div>
   </div>
