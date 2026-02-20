@@ -50,7 +50,7 @@
     gap: 8px;
     text-decoration: none;
     font-size: 14px;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
   }
 
   .back-btn {
@@ -64,6 +64,7 @@
     font-weight: 500;
     border: none;
     cursor: pointer;
+    position: relative;
   }
 
   .demo-start-btn.disabled {
@@ -76,11 +77,29 @@
   .demo-start-btn.active {
     background: var(--accent);
     color: white;
+    animation: bubblePop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 
   .demo-start-btn.active:hover {
     background: var(--accent2);
     transform: translateY(-1px);
+  }
+
+  @keyframes bubblePop {
+    0% {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.15);
+    }
+    70% {
+      transform: scale(0.95);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
   }
 
   h1 {
@@ -302,48 +321,99 @@
     background: white;
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 28px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
+    padding: 32px;
   }
 
-  .checklist-item {
-    padding: 16px 12px;
-    border-bottom: 1px solid var(--border);
+  .progress-indicator {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .checklist-step {
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .checklist-step.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .checklist-content {
     display: flex;
     align-items: center;
     gap: 16px;
-    cursor: pointer;
-    transition: background 0.2s;
+    margin-bottom: 24px;
   }
 
-  .checklist-item:nth-last-child(-n+2) {
-    border-bottom: none;
-  }
-
-  .checklist-item:nth-child(odd) {
-    border-right: 1px solid var(--border);
-  }
-
-  .checklist-item:hover {
-    background: var(--warm);
-    border-radius: 8px;
-  }
-
-  .checklist-item input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
+  .checklist-content input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
     cursor: pointer;
     accent-color: var(--accent);
     flex-shrink: 0;
   }
 
-  .checklist-item label {
-    font-size: 15px;
+  .checklist-content label {
+    font-size: 16px;
     cursor: pointer;
     flex: 1;
     user-select: none;
+  }
+
+  .next-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .next-btn:hover {
+    background: var(--accent2);
+    transform: translateY(-1px);
+  }
+
+  .next-btn:disabled {
+    background: #ddd;
+    color: #999;
+    cursor: not-allowed;
+  }
+
+  .completion-message {
+    display: none;
+    text-align: center;
+    padding: 20px;
+    background: var(--warm);
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--accent);
+    animation: fadeIn 0.5s ease;
+  }
+
+  .completion-message.show {
+    display: block;
   }
 
   .cta-box {
@@ -415,18 +485,6 @@
     .guide-grid {
       grid-template-columns: 1fr;
     }
-    .checklist {
-      grid-template-columns: 1fr;
-    }
-    .checklist-item:nth-child(odd) {
-      border-right: none;
-    }
-    .checklist-item:nth-last-child(-n+2) {
-      border-bottom: 1px solid var(--border);
-    }
-    .checklist-item:last-child {
-      border-bottom: none;
-    }
     .top-nav {
       flex-direction: column;
       align-items: stretch;
@@ -448,6 +506,85 @@
   <h1>데모 체험 준비하기</h1>
   <p class="subtitle">AI 기반 간단 진단을 통해 APL COLOR의 차별점을 경험하세요</p>
 
+  <!-- 촬영 전 최종 체크 (맨 위로 이동) -->
+  <div class="section">
+    <h2>촬영 전 최종 체크</h2>
+    <p style="margin-bottom: 20px; font-size: 14px; color: var(--text-muted); text-align: center;">
+      아래 체크리스트를 하나씩 확인하고 준비해 주세요.
+    </p>
+    <div class="checklist">
+      <div class="progress-indicator" id="progressIndicator">1/8</div>
+
+      <div class="checklist-step active" data-step="1">
+        <div class="checklist-content">
+          <input type="checkbox" id="check1">
+          <label for="check1">밝은 장소에서 정면 자연광을 확보해주세요.</label>
+        </div>
+        <button class="next-btn" id="nextBtn1" onclick="nextStep(1)" disabled>다음</button>
+      </div>
+
+      <div class="checklist-step" data-step="2">
+        <div class="checklist-content">
+          <input type="checkbox" id="check2">
+          <label for="check2">흰색 또는 베이지 단색 상의를 착용해주세요.</label>
+        </div>
+        <button class="next-btn" id="nextBtn2" onclick="nextStep(2)" disabled>다음</button>
+      </div>
+
+      <div class="checklist-step" data-step="3">
+        <div class="checklist-content">
+          <input type="checkbox" id="check3">
+          <label for="check3">메이크업을 제거하거나 최소화해주세요.</label>
+        </div>
+        <button class="next-btn" id="nextBtn3" onclick="nextStep(3)" disabled>다음</button>
+      </div>
+
+      <div class="checklist-step" data-step="4">
+        <div class="checklist-content">
+          <input type="checkbox" id="check4">
+          <label for="check4">귀가 보이도록 머리를 정리해주세요.</label>
+        </div>
+        <button class="next-btn" id="nextBtn4" onclick="nextStep(4)" disabled>다음</button>
+      </div>
+
+      <div class="checklist-step" data-step="5">
+        <div class="checklist-content">
+          <input type="checkbox" id="check5">
+          <label for="check5">액세서리를 모두 제거해주세요 (귀걸이, 안경, 모자 등).</label>
+        </div>
+        <button class="next-btn" id="nextBtn5" onclick="nextStep(5)" disabled>다음</button>
+      </div>
+
+      <div class="checklist-step" data-step="6">
+        <div class="checklist-content">
+          <input type="checkbox" id="check6">
+          <label for="check6">정면을 응시하는 무표정 얼굴을 유지해주세요.</label>
+        </div>
+        <button class="next-btn" id="nextBtn6" onclick="nextStep(6)" disabled>다음</button>
+      </div>
+
+      <div class="checklist-step" data-step="7">
+        <div class="checklist-content">
+          <input type="checkbox" id="check7">
+          <label for="check7">카메라를 눈높이에 두고, 60cm 거리를 유지해주세요.</label>
+        </div>
+        <button class="next-btn" id="nextBtn7" onclick="nextStep(7)" disabled>다음</button>
+      </div>
+
+      <div class="checklist-step" data-step="8">
+        <div class="checklist-content">
+          <input type="checkbox" id="check8">
+          <label for="check8">단순한 배경(흰색 벽)을 준비해주세요.</label>
+        </div>
+        <button class="next-btn" id="nextBtn8" onclick="nextStep(8)" disabled>완료</button>
+      </div>
+
+      <div class="completion-message" id="completionMessage">
+        ✓ 모든 준비가 완료되었습니다! 위 데모 시작하기 버튼을 클릭하세요.
+      </div>
+    </div>
+  </div>
+
   <!-- 데모 포함 내용 -->
   <div class="demo-info">
     <h3>📋 데모에 포함된 내용</h3>
@@ -456,48 +593,6 @@
       <div class="demo-feature">얼굴형 분석 (계란형, 둥근형, 각진형 등)</div>
       <div class="demo-feature">체형 분석 (웨이브, 스트레이트, 내추럴)</div>
       <div class="demo-feature">결과 페이지 샘플 (실제 고객이 받는 형식과 동일)</div>
-    </div>
-  </div>
-
-  <!-- 촬영 전 최종 체크 (위치 이동) -->
-  <div class="section">
-    <h2>촬영 전 최종 체크</h2>
-    <p style="margin-bottom: 20px; font-size: 14px; color: var(--text-muted);">
-      모든 항목을 체크하시면 데모를 시작할 수 있습니다.
-    </p>
-    <div class="checklist">
-      <div class="checklist-item" onclick="toggleCheck(this)">
-        <input type="checkbox" id="check1" onchange="updateButton()">
-        <label for="check1">밝은 장소에서 정면 자연광 확보</label>
-      </div>
-      <div class="checklist-item" onclick="toggleCheck(this)">
-        <input type="checkbox" id="check2" onchange="updateButton()">
-        <label for="check2">흰색/베이지 단색 상의 착용</label>
-      </div>
-      <div class="checklist-item" onclick="toggleCheck(this)">
-        <input type="checkbox" id="check3" onchange="updateButton()">
-        <label for="check3">메이크업 제거 또는 최소화</label>
-      </div>
-      <div class="checklist-item" onclick="toggleCheck(this)">
-        <input type="checkbox" id="check4" onchange="updateButton()">
-        <label for="check4">귀가 보이도록 머리 정리</label>
-      </div>
-      <div class="checklist-item" onclick="toggleCheck(this)">
-        <input type="checkbox" id="check5" onchange="updateButton()">
-        <label for="check5">액세서리 모두 제거 (귀걸이, 안경, 모자 등)</label>
-      </div>
-      <div class="checklist-item" onclick="toggleCheck(this)">
-        <input type="checkbox" id="check6" onchange="updateButton()">
-        <label for="check6">정면을 응시하는 무표정 얼굴</label>
-      </div>
-      <div class="checklist-item" onclick="toggleCheck(this)">
-        <input type="checkbox" id="check7" onchange="updateButton()">
-        <label for="check7">카메라 눈높이, 60cm 거리 유지</label>
-      </div>
-      <div class="checklist-item" onclick="toggleCheck(this)">
-        <input type="checkbox" id="check8" onchange="updateButton()">
-        <label for="check8">단순한 배경 (흰색 벽 권장)</label>
-      </div>
     </div>
   </div>
 
@@ -668,26 +763,55 @@
 </div>
 
 <script>
-function toggleCheck(item) {
-  const checkbox = item.querySelector('input[type="checkbox"]');
-  if (event.target.tagName !== 'INPUT') {
-    checkbox.checked = !checkbox.checked;
-    updateButton();
+let currentStep = 1;
+const totalSteps = 8;
+const checkedSteps = new Set();
+
+// 각 체크박스에 이벤트 리스너 추가
+for (let i = 1; i <= totalSteps; i++) {
+  const checkbox = document.getElementById(`check${i}`);
+  const nextBtn = document.getElementById(`nextBtn${i}`);
+
+  checkbox.addEventListener('change', function() {
+    if (this.checked) {
+      checkedSteps.add(i);
+      nextBtn.disabled = false;
+    } else {
+      checkedSteps.delete(i);
+      nextBtn.disabled = true;
+    }
+  });
+}
+
+function nextStep(step) {
+  // 현재 단계 숨기기
+  document.querySelector(`[data-step="${step}"]`).classList.remove('active');
+
+  // 다음 단계로 이동
+  currentStep = step + 1;
+
+  if (currentStep <= totalSteps) {
+    // 다음 단계 표시
+    document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
+    updateProgress();
+  } else {
+    // 모든 단계 완료
+    completeChecklist();
   }
 }
 
-function updateButton() {
-  const checkboxes = document.querySelectorAll('.checklist-item input[type="checkbox"]');
-  const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-  const btn = document.getElementById('demoStartBtn');
+function updateProgress() {
+  document.getElementById('progressIndicator').textContent = `${currentStep}/${totalSteps}`;
+}
 
-  if (allChecked) {
-    btn.classList.remove('disabled');
-    btn.classList.add('active');
-  } else {
-    btn.classList.add('disabled');
-    btn.classList.remove('active');
-  }
+function completeChecklist() {
+  document.getElementById('completionMessage').classList.add('show');
+  document.getElementById('progressIndicator').textContent = `${totalSteps}/${totalSteps} 완료!`;
+
+  // 데모 시작하기 버튼 활성화 with 물방울 퐁! 이펙트
+  const demoBtn = document.getElementById('demoStartBtn');
+  demoBtn.classList.remove('disabled');
+  demoBtn.classList.add('active');
 }
 
 function startDemo() {
