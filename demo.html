@@ -322,6 +322,7 @@
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 32px;
+    position: relative;
   }
 
   .progress-indicator {
@@ -336,6 +337,8 @@
   .checklist-step {
     display: none;
     animation: fadeIn 0.4s ease;
+    position: relative;
+    min-height: 200px;
   }
 
   .checklist-step.active {
@@ -355,44 +358,60 @@
 
   .checklist-content {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     gap: 24px;
-    padding: 20px 0;
+    padding: 40px 20px;
+  }
+
+  .checklist-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--warm) 0%, var(--surface) 100%);
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    margin-bottom: 8px;
   }
 
   .checklist-question {
-    font-size: 17px;
+    font-size: 18px;
     text-align: center;
-    flex: 1;
     font-weight: 400;
     line-height: 1.6;
+    max-width: 500px;
   }
 
   .check-btn {
-    width: 48px;
-    height: 48px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
-    border: 2px solid var(--accent);
+    border: 3px solid var(--accent);
     background: white;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
     transition: all 0.3s ease;
-    position: relative;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 10;
   }
 
   .check-btn:hover {
     background: var(--warm);
-    transform: scale(1.05);
-    border-width: 3px;
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(160,120,64,0.2);
   }
 
   .check-btn::after {
     content: '✓';
-    font-size: 24px;
+    font-size: 28px;
     color: var(--accent);
     font-weight: bold;
     opacity: 0;
@@ -408,12 +427,18 @@
   .check-btn.checked {
     background: var(--accent);
     border-color: var(--accent);
+    animation: checkPulse 0.4s ease;
   }
 
   .check-btn.checked::after {
     opacity: 1;
     transform: scale(1);
     color: white;
+  }
+
+  @keyframes checkPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
   }
 
   .completion-message {
@@ -532,58 +557,66 @@
       <div class="progress-indicator" id="progressIndicator">1/8</div>
 
       <div class="checklist-step active" data-step="1">
+        <button class="check-btn" id="checkBtn1" onclick="checkAndNext(1)"></button>
         <div class="checklist-content">
+          <div class="checklist-image">☀️</div>
           <div class="checklist-question">밝은 장소에서 정면 자연광을 확보해주세요.</div>
-          <button class="check-btn" id="checkBtn1" onclick="checkAndNext(1)"></button>
         </div>
       </div>
 
       <div class="checklist-step" data-step="2">
+        <button class="check-btn" id="checkBtn2" onclick="checkAndNext(2)"></button>
         <div class="checklist-content">
+          <div class="checklist-image">👕</div>
           <div class="checklist-question">흰색 또는 베이지 단색 상의를 착용해주세요.</div>
-          <button class="check-btn" id="checkBtn2" onclick="checkAndNext(2)"></button>
         </div>
       </div>
 
       <div class="checklist-step" data-step="3">
+        <button class="check-btn" id="checkBtn3" onclick="checkAndNext(3)"></button>
         <div class="checklist-content">
+          <div class="checklist-image">💄</div>
           <div class="checklist-question">메이크업을 제거하거나 최소화해주세요.</div>
-          <button class="check-btn" id="checkBtn3" onclick="checkAndNext(3)"></button>
         </div>
       </div>
 
       <div class="checklist-step" data-step="4">
+        <button class="check-btn" id="checkBtn4" onclick="checkAndNext(4)"></button>
         <div class="checklist-content">
+          <div class="checklist-image">💇</div>
           <div class="checklist-question">귀가 보이도록 머리를 정리해주세요.</div>
-          <button class="check-btn" id="checkBtn4" onclick="checkAndNext(4)"></button>
         </div>
       </div>
 
       <div class="checklist-step" data-step="5">
+        <button class="check-btn" id="checkBtn5" onclick="checkAndNext(5)"></button>
         <div class="checklist-content">
+          <div class="checklist-image">👓</div>
           <div class="checklist-question">액세서리를 모두 제거해주세요 (귀걸이, 안경, 모자 등).</div>
-          <button class="check-btn" id="checkBtn5" onclick="checkAndNext(5)"></button>
         </div>
       </div>
 
       <div class="checklist-step" data-step="6">
+        <button class="check-btn" id="checkBtn6" onclick="checkAndNext(6)"></button>
         <div class="checklist-content">
+          <div class="checklist-image">😐</div>
           <div class="checklist-question">정면을 응시하는 무표정 얼굴을 유지해주세요.</div>
-          <button class="check-btn" id="checkBtn6" onclick="checkAndNext(6)"></button>
         </div>
       </div>
 
       <div class="checklist-step" data-step="7">
+        <button class="check-btn" id="checkBtn7" onclick="checkAndNext(7)"></button>
         <div class="checklist-content">
+          <div class="checklist-image">📸</div>
           <div class="checklist-question">카메라를 눈높이에 두고, 60cm 거리를 유지해주세요.</div>
-          <button class="check-btn" id="checkBtn7" onclick="checkAndNext(7)"></button>
         </div>
       </div>
 
       <div class="checklist-step" data-step="8">
+        <button class="check-btn" id="checkBtn8" onclick="checkAndNext(8)"></button>
         <div class="checklist-content">
+          <div class="checklist-image">🖼️</div>
           <div class="checklist-question">단순한 배경(흰색 벽)을 준비해주세요.</div>
-          <button class="check-btn" id="checkBtn8" onclick="checkAndNext(8)"></button>
         </div>
       </div>
 
