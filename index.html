@@ -1886,50 +1886,80 @@
     </div>
 
     <div class="pricing-grid">
+      <!-- 1단계: AI 데모진단 -->
       <div class="pricing-card reveal">
-        <div class="pc-tag">FREE</div>
-        <div class="pc-name">기본 조회</div>
-        <div class="pc-price">₩0<span> / 영구</span></div>
-        <div class="pc-desc">진단 결과를 언제든 조회하고 기본 연대기를 유지합니다.</div>
+        <div class="pc-tag">FREE · DEMO</div>
+        <div class="pc-name">AI 데모진단</div>
+        <div class="pc-price">₩0<span> / 무료</span></div>
+        <div class="pc-desc">AI 기반 기본 진단으로 퍼스널컬러, 얼굴형, 체형 결과를 확인하세요.</div>
         <div class="pc-items">
-          <div class="pc-item">진단 결과 조회 · 연대기 기록</div>
-          <div class="pc-item">기본 컬러 팔레트 PDF</div>
-          <div class="pc-item">무료 업데이트 1-2개 / 시즌</div>
+          <div class="pc-item">퍼스널컬러 기본 진단</div>
+          <div class="pc-item">얼굴형 분석 결과</div>
+          <div class="pc-item">체형 분석 결과</div>
         </div>
-        <a href="#" class="pc-cta btn-ghost" style="border:1px solid var(--border);color:var(--text-muted);">시작하기 — 무료</a>
+        <a href="demo.html" class="pc-cta btn-ghost" style="border:1px solid var(--border);color:var(--text-muted);">데모 시작하기 →</a>
       </div>
 
+      <!-- 2단계: 지속관리모델 (Polar 결제) -->
       <div class="pricing-card featured reveal">
-        <div class="pc-tag" style="color:var(--accent)">POPULAR · 업데이트</div>
-        <div class="pc-name">트렌드 구독</div>
-        <div class="pc-price">₩9,900<span> / 월</span></div>
-        <div class="pc-desc">시즌마다 자동 업데이트되는 신상 큐레이션과 트렌드 인사이트를 받습니다.</div>
-        <div class="pc-items">
-          <div class="pc-item">무제한 트렌드 업데이트</div>
-          <div class="pc-item">내 타입 신상 · 헤어 추천</div>
-          <div class="pc-item">유사 고객 인사이트 데이터</div>
-          <div class="pc-item">변화 그래프 고급 분석</div>
+        <div class="pc-tag" style="color:var(--accent)">🔥 오픈 할인 42% OFF</div>
+        <div class="pc-name">지속관리 모델</div>
+        <div class="pc-price">
+          <span style="text-decoration:line-through;font-size:0.6em;opacity:0.5;margin-right:8px;">₩120,000</span>
+          ₩69,000<span> / 평생</span>
         </div>
-        <a href="#" class="pc-cta btn-primary">구독 시작하기</a>
+        <div class="pc-desc">퍼스널컬러, 얼굴형, 체형 모든 내용이 열리고 평생 업데이트됩니다.</div>
+        <div class="pc-items">
+          <div class="pc-item">✅ 퍼스널컬러 전체 팔레트</div>
+          <div class="pc-item">✅ 얼굴형별 스타일링 가이드</div>
+          <div class="pc-item">✅ 체형별 맞춤 추천</div>
+          <div class="pc-item">✅ 평생 업데이트</div>
+          <div class="pc-item">✅ 이미지 연대기 기록</div>
+        </div>
+        <a
+          href="#"
+          class="pc-cta btn-primary"
+          data-polar-checkout
+          data-polar-checkout-theme="light"
+          data-polar-product="b7786b6a-d228-467a-8bb7-161e578bedcb"
+        >
+          지금 구매하기 — ₩69,000
+        </a>
       </div>
 
-      <div class="pricing-card reveal">
-        <div class="pc-tag">EVENT · 상황별</div>
-        <div class="pc-name">상황 패키지</div>
-        <div class="pc-price">₩29,000~<span> / 건</span></div>
-        <div class="pc-desc">면접·웨딩·하객·촬영 등 이벤트 특화 완성형 패키지입니다.</div>
+      <!-- 3단계: 프리미엄 (토스페이먼츠, 준비중) -->
+      <div class="pricing-card reveal" style="opacity:0.6;">
+        <div class="pc-tag">PREMIUM · 준비중</div>
+        <div class="pc-name">프리미엄 진단</div>
+        <div class="pc-price">₩150,000<span> / 1회</span></div>
+        <div class="pc-desc">대면 체촌, 측색기 측정, 전문가 진단 교정까지 정밀 진단 서비스.</div>
         <div class="pc-items">
-          <div class="pc-item">상황별 룩 큐레이션 (풀세트)</div>
-          <div class="pc-item">컨설턴트 직접 검수</div>
-          <div class="pc-item">메이크업 · 헤어 방향 포함</div>
-          <div class="pc-item">구매 후 30일 수정 1회</div>
+          <div class="pc-item">🔬 측색기 직접 측정</div>
+          <div class="pc-item">📏 대면 체촌 서비스</div>
+          <div class="pc-item">👨‍⚕️ 컬러리스트 진단 교정</div>
+          <div class="pc-item">📊 정밀 Lab 데이터 제공</div>
         </div>
-        <a href="#" class="pc-cta btn-outline">패키지 보기</a>
+        <a href="#" class="pc-cta btn-outline" style="opacity:0.5;cursor:not-allowed;" onclick="alert('곧 오픈 예정입니다!'); return false;">Coming Soon</a>
+      </div>
+
+      <!-- 4단계: 이벤트 패키지 (토스페이먼츠, 준비중) -->
+      <div class="pricing-card reveal" style="opacity:0.6;">
+        <div class="pc-tag">EVENT · 준비중</div>
+        <div class="pc-name">이벤트 패키지</div>
+        <div class="pc-price">₩150,000~<span> / 건</span></div>
+        <div class="pc-desc">면접, 웨딩, 소개팅, 프로필촬영 등 특별한 순간을 위한 맞춤 패키지.</div>
+        <div class="pc-items">
+          <div class="pc-item">💼 면접 이미지 컨설팅</div>
+          <div class="pc-item">💐 웨딩 스타일링</div>
+          <div class="pc-item">📸 프로필 촬영 준비</div>
+          <div class="pc-item">💕 소개팅 룩 큐레이션</div>
+        </div>
+        <a href="#" class="pc-cta btn-outline" style="opacity:0.5;cursor:not-allowed;" onclick="alert('곧 오픈 예정입니다!'); return false;">Coming Soon</a>
       </div>
     </div>
 
     <div class="promo-bar reveal">
-      🎁 지금 가입하면 <strong>무료 업데이트 2개 추가 제공</strong> — 이번 시즌 한정 캠페인
+      🎉 오픈 기념 특가 <strong>₩120,000 → ₩69,000 (42% 할인)</strong> — 선착순 100명 한정
     </div>
   </div>
 </section>
@@ -2231,5 +2261,12 @@
     });
   });
 </script>
+
+<!-- Polar Checkout SDK -->
+<script
+  defer
+  data-auto-init
+  src="https://cdn.jsdelivr.net/npm/@polar-sh/checkout@latest/dist/embed.global.js"
+></script>
 </body>
 </html>
